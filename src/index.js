@@ -1,6 +1,7 @@
 import { lineRadial, curveBasisClosed, curveLinear } from "d3-shape";
 import { hexToRGBA } from "./util/colour";
 import { createElement } from "./util/dom";
+import { padZero } from "./util/string";
 import Canvas from "./canvas";
 
 const EIGHTH = Math.PI / 4;
@@ -100,8 +101,8 @@ export default class WeatherClock {
     this._drawCurrentTimeLine(this._line, radius, innerRadius, now);
     context.stroke();
 
-    this._dateContainer.innerText = `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
-    this._timeContainer.innerText = `${now.getHours()}:${now.getMinutes()}`;
+    this._dateContainer.innerText = `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]}`;
+    this._timeContainer.innerText = `${padZero(now.getHours())}:${padZero(now.getMinutes())}`;
   }
 
   /**
