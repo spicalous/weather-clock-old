@@ -21,20 +21,31 @@ export default class Canvas {
   }
 
   /**
-   * @param {number} width
-   * @param {number} height
-   */
-  setDimensions(width, height) {
-    this._canvas.width = `${width}`;
-    this._canvas.height = `${height}`;
-  }
-
-  /**
    * @param {string} fillStyle
    */
   clear(fillStyle) {
     this._context.fillStyle = fillStyle;
     this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+  }
+
+  /**
+   * @param {number} width
+   * @param {number} height
+   */
+  setDimensions(width, height) {
+    const deviceRatio = window.devicePixelRatio || 1;
+    const backingStoreRatio = window.webkitBackingStorePixelRatio
+      || window.mozBackingStorePixelRatio
+      || window.msBackingStorePixelRatio
+      || window.oBackingStorePixelRatio
+      || window.backingStorePixelRatio
+      || 1;
+    const pixelRatio = deviceRatio / backingStoreRatio;
+
+    this._canvas.width = width * pixelRatio;
+    this._canvas.height = height * pixelRatio;
+    this._canvas.style.width = `${width}px`;
+    this._canvas.style.height = `${height}px`;
   }
 
   /**
