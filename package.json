@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "npm run lint:prod && npm run lint:script && npm run lint:test",
     "lint:prod": "eslint src",
-    "lint:script": "eslint --config .eslintrc-script.json webpack*.js karma-*.js",
+    "lint:script": "eslint --config .eslintrc-script.json webpack*.js karma-*.js lambda.js",
     "lint:test": "eslint --config .eslintrc-test.json test",
     "build": "webpack",
     "start": "webpack-dev-server --config webpack.dev.config.js --open",
