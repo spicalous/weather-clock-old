@@ -79,9 +79,12 @@ export default class WeatherClock {
     context.stroke();
 
     context.lineWidth = 2;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillStyle = CYAN_700;
     context.beginPath();
     this._line.curve(curveLinear);
-    this._drawClockTicks(this._line, radius);
+    this._drawClockTicks(this._line, context, radius);
     context.stroke();
   }
 
@@ -123,14 +126,19 @@ export default class WeatherClock {
 
   /**
    * @param {lineRadial} line
+   * @param {CanvasRenderingContext2D} context
    * @param {number} radius
    */
-  _drawClockTicks(line, radius) {
+  _drawClockTicks(line, context, radius) {
     // clock ticks
     for (let i = 0; i < 24; i++) {
+      const radians = i * TWENTY_FOURTH;
+
       line([
-        [i * TWENTY_FOURTH, radius * 0.9],
-        [i * TWENTY_FOURTH, radius * 0.925]]);
+        [radians, radius * 0.9],
+        [radians, radius * 0.925]]);
+
+      context.fillText(i, radius * 0.95 * Math.sin(radians), radius * 0.95 * -Math.cos(radians));
     }
   }
 
