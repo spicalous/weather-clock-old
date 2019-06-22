@@ -21,11 +21,16 @@ export default class Canvas {
   }
 
   /**
-   * @param {string} fillStyle
+   * @param {string} [fillStyle]
    */
   clear(fillStyle) {
-    this._context.fillStyle = fillStyle;
-    this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+    this._context.setTransform(1, 0, 0, 1, 0, 0);
+    if (fillStyle) {
+      this._context.fillStyle = fillStyle;
+      this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+    } else {
+      this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    }
   }
 
   /**

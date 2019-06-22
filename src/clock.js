@@ -4,6 +4,7 @@ import { createElement } from "./util/dom";
 import { padZero } from "./util/string";
 import Canvas from "./canvas";
 
+const PERCENTAGE_OF_OUTER_RADIUS_FOR_INNER_RADIUS = 0.4;
 const EIGHTH = Math.PI / 4;
 const TWENTY_FOURTH = Math.PI / 12;
 const CYAN_700 = "#0097A7";
@@ -28,6 +29,10 @@ export default class Clock {
     this._infoContainer.appendChild(this._timeContainer);
     this._weatherClockContainer.appendChild(this._infoContainer);
     this._container.appendChild(this._weatherClockContainer);
+
+    this._radius = 0;
+    this._innerRadius = 0;
+    this._currentTime = new Date();
   }
 
   destroy() {
@@ -53,26 +58,42 @@ export default class Clock {
     this._fgCanvas.setDimensions(diameter, diameter);
     this._infoContainer.style = `width: ${diameter}px; height: ${diameter}px;`;
 
-    const radius = diameter / 2;
-    const innerRadius = radius * 0.4;
-    const bgContext = this._bgCanvas.getContext();
-    const fgContext = this._fgCanvas.getContext();
-    bgContext.setTransform(1, 0, 0, 1, 0, 0);
-    fgContext.setTransform(1, 0, 0, 1, 0, 0);
-    bgContext.translate(radius, radius);
-    fgContext.translate(radius, radius);
-    this._drawBackground(this._bgCanvas, this._bgCanvas.getContext(), radius, innerRadius);
-    this._drawForeground(this._fgCanvas, this._fgCanvas.getContext(), radius, innerRadius);
+    this._radius = diameter / 2;
+    this._innerRadius = this._radius * PERCENTAGE_OF_OUTER_RADIUS_FOR_INNER_RADIUS;
+
+    this._drawBackground(this._bgCanvas, this._radius, this._innerRadius);
+    this.setTime(this._currentTime);
+  }
+
+  /**
+   * @param {Date} currentTime
+   */
+  setTime(currentTime) {
+    this._currentTime = currentTime;
+    this._fgCanvas.clear();
+    const context = this._fgCanvas.getContext();
+    context.translate(this._radius, this._radius);
+    context.strokeStyle = CYAN_700;
+    context.lineWidth = 2;
+    context.beginPath();
+    this._line.context(context);
+    this._line.curve(curveLinear);
+    this._drawCurrentTimeLine(this._line, this._radius, this._innerRadius, this._currentTime);
+    context.stroke();
+
+    this._dateContainer.innerText = `${DAYS[this._currentTime.getDay()]} ${this._currentTime.getDate()} ${MONTHS[this._currentTime.getMonth()]}`;
+    this._timeContainer.innerText = `${padZero(this._currentTime.getHours())}:${padZero(this._currentTime.getMinutes())}`;
   }
 
   /**
    * @param {Canvas} canvas
-   * @param {CanvasRenderingContext2D} context
    * @param {number} radius
    * @param {number} innerRadius
    */
-  _drawBackground(canvas, context, radius, innerRadius) {
+  _drawBackground(canvas, radius, innerRadius) {
     canvas.clear("#000000");
+    const context = this._bgCanvas.getContext();
+    context.translate(this._radius, this._radius);
 
     this._line.curve(curveBasisClosed);
     this._line.context(context);
@@ -102,26 +123,6 @@ export default class Clock {
   }
 
   /**
-   * @param {Canvas} canvas
-   * @param {CanvasRenderingContext2D} context
-   * @param {number} radius
-   * @param {number} innerRadius
-   */
-  _drawForeground(canvas, context, radius, innerRadius) {
-    const now = new Date();
-    context.strokeStyle = CYAN_700;
-    context.lineWidth = 2;
-    context.beginPath();
-    this._line.context(context);
-    this._line.curve(curveLinear);
-    this._drawCurrentTimeLine(this._line, radius, innerRadius, now);
-    context.stroke();
-
-    this._dateContainer.innerText = `${DAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]}`;
-    this._timeContainer.innerText = `${padZero(now.getHours())}:${padZero(now.getMinutes())}`;
-  }
-
-  /**
    * @param {lineRadial} line
    * @param {number} radius
    */
@@ -143,7 +144,6 @@ export default class Clock {
    * @param {number} radius
    */
   _drawClockTicks(line, context, radius) {
-    // clock ticks
     for (let i = 0; i < 24; i++) {
       const radians = i * TWENTY_FOURTH;
 
