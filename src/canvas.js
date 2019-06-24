@@ -1,5 +1,14 @@
 import { createElement } from "./util/dom";
 
+const DEVICE_RATIO = window.devicePixelRatio || 1;
+const BACKING_STORE_RATIO = window.webkitBackingStorePixelRatio
+  || window.mozBackingStorePixelRatio
+  || window.msBackingStorePixelRatio
+  || window.oBackingStorePixelRatio
+  || window.backingStorePixelRatio
+  || 1;
+const PIXEL_RATIO = DEVICE_RATIO / BACKING_STORE_RATIO;
+
 export default class Canvas {
 
   /**
@@ -25,6 +34,7 @@ export default class Canvas {
    */
   clear(fillStyle) {
     this._context.setTransform(1, 0, 0, 1, 0, 0);
+    this._context.scale(PIXEL_RATIO, PIXEL_RATIO);
     if (fillStyle) {
       this._context.fillStyle = fillStyle;
       this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
@@ -38,19 +48,11 @@ export default class Canvas {
    * @param {number} height
    */
   setDimensions(width, height) {
-    const deviceRatio = window.devicePixelRatio || 1;
-    const backingStoreRatio = window.webkitBackingStorePixelRatio
-      || window.mozBackingStorePixelRatio
-      || window.msBackingStorePixelRatio
-      || window.oBackingStorePixelRatio
-      || window.backingStorePixelRatio
-      || 1;
-    const pixelRatio = deviceRatio / backingStoreRatio;
-
-    this._canvas.width = width * pixelRatio;
-    this._canvas.height = height * pixelRatio;
+    this._canvas.width = width * PIXEL_RATIO;
+    this._canvas.height = height * PIXEL_RATIO;
     this._canvas.style.width = `${width}px`;
     this._canvas.style.height = `${height}px`;
+    this._context.scale(PIXEL_RATIO, PIXEL_RATIO);
   }
 
   /**
