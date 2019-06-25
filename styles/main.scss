@@ -13,7 +13,7 @@
     position: absolute;
   }
 
-  &_info-container {
+  &_info {
     color: $white;
     position: absolute;
     display: flex;
@@ -21,8 +21,22 @@
     align-items: center;
     justify-content: center;
 
-    &_date-container {
+    div:not(:first-child) {
+      padding-top: 2px;
+    }
+
+    div:not(:last-child), {
+      padding-bottom: 2px;
+    }
+
+    &_date,
+    &_timezone {
       font-size: 0.2em;
+    }
+
+    &_weather {
+      font-size: 0.25em;
+      color: $amber-700;
     }
   }
 }
