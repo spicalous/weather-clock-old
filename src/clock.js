@@ -24,6 +24,7 @@ export default class Clock {
     this._line = lineRadial();
     this._weatherClockContainer = createElement("div", "weather-clock");
     this._bgCanvas = new Canvas(this._weatherClockContainer, "weather-clock_canvas-bg");
+    this._weatherCanvas = new Canvas(this._weatherClockContainer, "weather-clock_canvas-weather");
     this._fgCanvas = new Canvas(this._weatherClockContainer, "weather-clock_canvas-fg");
 
     this._infoContainer = createElement("div", "weather-clock_info");
@@ -53,9 +54,11 @@ export default class Clock {
     this._container.removeChild(this._weatherClockContainer);
     this._bgCanvas.destroy();
     this._fgCanvas.destroy();
+    this._weatherCanvas.destroy();
     delete this._line;
     delete this._bgCanvas;
     delete this._fgCanvas;
+    delete this._weatherCanvas;
     delete this._dateContainer;
     delete this._timeContainer;
     delete this._timezoneContainer;
@@ -69,6 +72,7 @@ export default class Clock {
     const diameter = Math.min(boundingClientRect.width, boundingClientRect.height);
     this._bgCanvas.setDimensions(diameter, diameter);
     this._fgCanvas.setDimensions(diameter, diameter);
+    this._weatherCanvas.setDimensions(diameter, diameter);
     this._infoContainer.style = `width: ${diameter}px; height: ${diameter}px;`;
 
     this._radius = diameter / 2;
@@ -103,25 +107,30 @@ export default class Clock {
    * @param {Weather} weather
    */
   setWeather(weather) {
+    this._weather = weather;
+    this._weatherCanvas.clear();
+    const context = this._weatherCanvas.getContext();
+    context.translate(this._radius, this._radius);
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+
     const startTime = this._time.getTime() - TIME.HOUR;
     const endTime = startTime + TIME.DAY;
     const temperatures = weather.getTemperatureData(startTime, endTime);
 
     this._timezoneContainer.innerText = `${weather.getTimezone()}`;
-    this._drawTemperature(this._radius, this._innerRadius, temperatures.min, temperatures.max, temperatures.data);
+    this._drawTemperature(context, this._radius, this._innerRadius, temperatures.min, temperatures.max, temperatures.data);
   }
 
   /**
+   * @param {CanvasRenderingContext2D} context
    * @param {number} radius
    * @param {number} innerRadius
    * @param {number} min
    * @param {number} max
    * @param {object[]} temperatures
    */
-  _drawTemperature(radius, innerRadius, min, max, temperatures) {
-
-    const context = this._bgCanvas.getContext();
-
+  _drawTemperature(context, radius, innerRadius, min, max, temperatures) {
     this._line.curve(curveCatmullRomClosed);
     this._line.context(context);
 
@@ -138,7 +147,7 @@ export default class Clock {
         if (temperatures[i - 1] && (temperatures[i - 1].temperature === min || temperatures[i - 1].temperature === max)) {
           continue; // previous data point already drew min / max text
         } else {
-          context.fillText(temperatures[i].temperature, temperatureRadius * 1.05 * Math.sin(angle), temperatureRadius * 1.05 * -Math.cos(angle));
+          context.fillText(temperatures[i].temperature, temperatureRadius * 1.07 * Math.sin(angle), temperatureRadius * 1.07 * -Math.cos(angle));
         }
       }
     }
@@ -157,7 +166,7 @@ export default class Clock {
    */
   _drawBackground(canvas, radius, innerRadius) {
     canvas.clear("#000000");
-    const context = this._bgCanvas.getContext();
+    const context = canvas.getContext();
     context.translate(this._radius, this._radius);
 
     this._line.curve(curveBasisClosed);

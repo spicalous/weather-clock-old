@@ -1,7 +1,7 @@
 import Clock from "./clock";
 import { mapData } from "./data-mapper";
 
-const UPDATE_FREQ = 500;
+const TIME_UPDATE_FREQ = 500;
 const URL = "https://9k0pyk23f0.execute-api.eu-west-2.amazonaws.com/default/weatherClockCacheApi?fbclid=IwAR2mNngokPFwXQqMoRJcXPSwhE6SyLmCqVCqlUsSN2R1y08TZc-Xl1rjf0g";
 
 export default class WeatherClock {
@@ -13,12 +13,9 @@ export default class WeatherClock {
     this._clock = new Clock(container);
     this._boundResize = this._resize.bind(this);
     this._boundInit = this._init.bind(this);
-    this._boundUpdateTime = this._updateTime.bind(this);
+    this._boundUpdate = this._update.bind(this);
     this._lastUpdatedTime = 0;
-
-    this._fetchData(URL)
-      .then(mapData)
-      .then(this._updateWeather.bind(this));
+    this._lastUpdatedWeather = -1;
 
     // wait for layout/sizing of newly created DOM elements
     this._initTimeoutId = setTimeout(this._boundInit, 0);
@@ -26,7 +23,7 @@ export default class WeatherClock {
   }
 
   destroy() {
-    window.cancelAnimationFrame(this._updateTimeId);
+    window.cancelAnimationFrame(this._updateId);
     window.removeEventListener("resize", this._boundResize);
     clearTimeout(this._initTimeoutId);
     this._clock.destroy();
@@ -37,23 +34,27 @@ export default class WeatherClock {
 
   _init() {
     this._resize();
-    this._updateTimeId = window.requestAnimationFrame(this._boundUpdateTime);
+    this._updateWeather(new Date());
+    this._updateId = window.requestAnimationFrame(this._boundUpdate);
   }
 
-  _updateTime(timestamp) {
-    if (this._lastUpdatedTime + UPDATE_FREQ < timestamp) {
+  _update(timestamp) {
+    if (this._lastUpdatedTime + TIME_UPDATE_FREQ < timestamp) {
       this._lastUpdatedTime = timestamp;
-      this._clock.setTime(new Date());
+      const time = new Date();
+      this._clock.setTime(time);
+      this._updateWeather(time);
     }
-    this._updateTimeId = window.requestAnimationFrame(this._boundUpdateTime);
+    this._updateTimeId = window.requestAnimationFrame(this._boundUpdate);
   }
 
-  /**
-   * @param {Weather} weather
-   */
-  _updateWeather(weather) {
-    this._clock.setWeather(weather);
-    // TODO initialise data polling
+  _updateWeather(time) {
+    if (this._lastUpdatedWeather < time.getHours() || (time.getHours() === 0 && this._lastUpdatedWeather !== 0)) {
+      this._lastUpdatedWeather = time.getHours();
+      this._fetchData(URL)
+        .then(mapData)
+        .then(this._clock.setWeather.bind(this._clock));
+    }
   }
 
   _resize() {

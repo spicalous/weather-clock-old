@@ -7,8 +7,7 @@
   background-color: $black;
   font-size: 48px;
 
-  &_canvas-bg,
-  &_canvas-fg {
+  canvas {
     display: block;
     position: absolute;
   }
