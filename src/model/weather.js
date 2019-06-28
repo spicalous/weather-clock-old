@@ -1,3 +1,5 @@
+import { TIME } from "../util/time";
+
 /**
  * Container for semi processed weather data
  */
@@ -55,11 +57,11 @@ export default class Weather {
    * @param {number} time
    */
   getSunsetSunriseData(time) {
-    for (let i = 1; i < this._daily.length; i++) {
-      if (this._daily[i - 1].time <= time && time < this._daily[i].time) {
+    for (let i = 0; i < this._daily.length; i++) {
+      if (this._daily[i].time <= time && time < this._daily[i].time + TIME.DAY) {
         return {
-          sunriseTime: this._daily[i - 1].sunriseTime,
-          sunsetTime: this._daily[i - 1].sunsetTime
+          sunriseTime: this._daily[i].sunriseTime,
+          sunsetTime: this._daily[i].sunsetTime
         };
       }
     }

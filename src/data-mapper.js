@@ -20,8 +20,8 @@ function mapHourly(dataPoint) {
 function mapDaily(dataPoint) {
   return {
     time: dataPoint.time * 1000,
-    sunriseTime: dataPoint.sunriseTime || null,
-    sunsetTime: dataPoint.sunsetTime || null
+    sunriseTime: dataPoint.sunriseTime ? dataPoint.sunriseTime * 1000 : null,
+    sunsetTime: dataPoint.sunsetTime ? dataPoint.sunsetTime * 1000: null
   };
 }
 

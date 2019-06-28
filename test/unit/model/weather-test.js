@@ -1,4 +1,5 @@
 import Weather from "../../../src/model/weather";
+import { TIME } from "../../../src/util/time";
 
 describe("model/weather", function() {
 
@@ -64,13 +65,14 @@ describe("model/weather", function() {
 
   it("returns sunrise/sunset time based on current time", function() {
     const weather = new Weather("", [], [
-      { time: 0, sunriseTime: 0, sunsetTime: 1 },
-      { time: 2, sunriseTime: 2, sunsetTime: 3 },
-      { time: 4, sunriseTime: 4, sunsetTime: 5 }
+      { time: 0 * TIME.DAY + 0, sunriseTime: 0, sunsetTime: 1 },
+      { time: 1 * TIME.DAY + 1, sunriseTime: 2, sunsetTime: 3 },
+      { time: 2 * TIME.DAY + 2, sunriseTime: 4, sunsetTime: 5 }
     ]);
 
-    assert.deepEqual(weather.getSunsetSunriseData(2), { sunriseTime: 2, sunsetTime: 3 });
-    assert.deepEqual(weather.getSunsetSunriseData(3), { sunriseTime: 2, sunsetTime: 3 });
+    assert.deepEqual(weather.getSunsetSunriseData(0), { sunriseTime: 0, sunsetTime: 1 });
+    assert.deepEqual(weather.getSunsetSunriseData(TIME.DAY + 1), { sunriseTime: 2, sunsetTime: 3 });
+    assert.deepEqual(weather.getSunsetSunriseData(TIME.DAY + 2), { sunriseTime: 2, sunsetTime: 3 });
   });
 
 });

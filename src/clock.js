@@ -156,7 +156,9 @@ export default class Clock {
     this._line(lineData);
     context.stroke();
 
-    this._temperatureContainer.innerText = `Min: ${Number.isFinite(min) ? min : ""} Max: ${Number.isFinite(max) ? max : ""}`;
+    this._temperatureContainer.innerText = Number.isFinite(min) && Number.isFinite(max)
+      ? `Min: ${min} Max: ${max}`
+      : "";
   }
 
   /**
