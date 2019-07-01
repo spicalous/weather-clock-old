@@ -1,4 +1,5 @@
 import { TIME } from "../util/time";
+import { splitAndChunkByNull } from "../util/array";
 
 /**
  * Container for semi processed weather data
@@ -48,9 +49,13 @@ export default class Weather {
    */
   getPrecipitationData(start, end) {
     const visibleData = this._getVisible(this._hourly, start, end);
-    return {
-      data: visibleData,
-    };
+    const precipitation = visibleData.map(d => d.precipProbability >= 0.5 ? d : null);
+
+    if (precipitation.filter(d => !!d).length > 0) {
+      return splitAndChunkByNull(precipitation);
+    }
+
+    return [];
   }
 
   /**
