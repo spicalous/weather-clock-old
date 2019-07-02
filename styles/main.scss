@@ -19,28 +19,30 @@
   }
 
   &_info {
+    text-align: center;
     color: $white;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 
-    div:not(:first-child) {
+    div {
       padding-top: 2px;
-    }
-
-    div:not(:last-child), {
       padding-bottom: 2px;
     }
 
     &_date,
-    &_timezone {
+    &_timezone,
+    &_weather_temperature-min-max {
       font-size: 0.2em;
     }
 
     &_weather {
-      font-size: 0.25em;
       color: $amber-700;
+
+      &_temperature-current {
+        font-size: 0.5em;
+      }
     }
   }
 }

@@ -33,8 +33,12 @@ export default class Clock {
     this._timezoneContainer = createElement("div", "weather-clock_info_timezone");
     this._weatherContainer = createElement("div", "weather-clock_info_weather");
 
-    this._temperatureContainer = createElement("div", "weather-clock_info_weather_temperature");
-    this._weatherContainer.appendChild(this._temperatureContainer);
+    this._currentTempContainer = createElement("div", "weather-clock_info_weather_temperature-current");
+    this._maxTempContainer = createElement("div", "weather-clock_info_weather_temperature-min-max");
+    this._minTempContainer = createElement("div", "weather-clock_info_weather_temperature-min-max");
+    this._weatherContainer.appendChild(this._currentTempContainer);
+    this._weatherContainer.appendChild(this._maxTempContainer);
+    this._weatherContainer.appendChild(this._minTempContainer);
 
     this._infoContainer.appendChild(this._dateContainer);
     this._infoContainer.appendChild(this._timeContainer);
@@ -58,7 +62,10 @@ export default class Clock {
     delete this._line;
     delete this._bgCanvas;
     delete this._fgCanvas;
-    delete this._weatherCanvas;
+    delete this._minTempContainer;
+    delete this._maxTempContainer;
+    delete this._currentTempContainer;
+    delete this._weatherContainer;
     delete this._dateContainer;
     delete this._timeContainer;
     delete this._timezoneContainer;
@@ -156,9 +163,9 @@ export default class Clock {
     this._line(lineData);
     context.stroke();
 
-    this._temperatureContainer.innerText = Number.isFinite(min) && Number.isFinite(max)
-      ? `Min: ${min} Max: ${max}`
-      : "";
+    this._currentTempContainer.innerText = temperatures.length ? `${temperatures[0].temperature}°C` : "";
+    this._maxTempContainer.innerText = Number.isFinite(max) ? `${max}°C` : "";
+    this._minTempContainer.innerText = Number.isFinite(min) ? `${min}°C` : "";
   }
 
   /**
