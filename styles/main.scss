@@ -7,14 +7,19 @@
   background-color: $black;
   font-size: 48px;
 
+  canvas,
+  &_info {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+
   canvas {
     display: block;
-    position: absolute;
   }
 
   &_info {
     color: $white;
-    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
