@@ -6,7 +6,7 @@ const webpackConfig = require("./webpack.common.config.js");
 module.exports = merge(webpackConfig, {
   mode: "production",
   entry: {
-    viewer: ["./viewer/viewer.scss", "./viewer/viewer.js"]
+    viewer: ["./viewer/viewer.scss", "@babel/polyfill", "whatwg-fetch", "./viewer/viewer.js"]
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -16,6 +16,24 @@ module.exports = merge(webpackConfig, {
   ],
   module: {
     rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [
+              [
+                "@babel/preset-env",
+                {
+                  "useBuiltIns": "entry",
+                  "corejs": "2.6.9"
+                }
+              ]
+            ]
+          }
+        }
+      },
       {
         test: /\.scss$/,
         use: [

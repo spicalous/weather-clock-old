@@ -12,4 +12,3 @@ Displays weather data on a 24hr clock face
 - finite list of selectable cities
 - display sunrise/sunset
 - display precipitation
-- js transpilation
