@@ -1,13 +1,17 @@
 const merge = require("webpack-merge");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpackConfig = require("./webpack.common.config.js");
 
 module.exports = merge(webpackConfig, {
   mode: "production",
   entry: {
-    ["weather-clock"]: ["./styles/main.scss", "./src/index.js"],
+    viewer: ["./viewer/viewer.scss", "./viewer/viewer.js"]
   },
   plugins: [
+    new HtmlWebpackPlugin({
+      title: "Weather clock viewer"
+    }),
     new MiniCssExtractPlugin()
   ],
   module: {

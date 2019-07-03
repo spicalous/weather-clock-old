@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body {
   font-size: 16px;
@@ -9,3 +15,5 @@ body {
 body {
   margin: 0;
 }
+
+@import "styles/main";

@@ -13,4 +13,3 @@ Displays weather data on a 24hr clock face
 - display sunrise/sunset
 - display precipitation
 - js transpilation
-- css transpilation
