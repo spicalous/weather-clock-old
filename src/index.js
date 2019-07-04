@@ -23,13 +23,16 @@ export default class WeatherClock {
   }
 
   destroy() {
-    window.cancelAnimationFrame(this._updateId);
-    window.removeEventListener("resize", this._boundResize);
     clearTimeout(this._initTimeoutId);
+    delete this._initTimeoutId;
+    window.removeEventListener("resize", this._boundResize);
+    delete this._boundResize;
+    window.cancelAnimationFrame(this._updateId);
+    delete this._boundUpdate;
     this._clock.destroy();
     delete this._clock;
-    delete this._boundResize;
-    delete this._resizeTimeoutId;
+    delete this._lastUpdatedTime;
+    delete this._lastUpdatedWeather;
   }
 
   _init() {
