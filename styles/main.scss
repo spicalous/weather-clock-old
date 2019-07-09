@@ -5,7 +5,29 @@
   width: 100%;
   height: 100%;
   background-color: $black;
-  font-size: 48px;
+  font-size: 0.5em;
+
+  @media (min-width: 360px) and (min-height: 360px) {
+    font-size: 0.6em;
+  }
+  @media (min-width: 400px) and (min-height: 400px) {
+    font-size: 0.7em;
+  }
+  @media (min-width: 450px) and (min-height: 450px) {
+    font-size: 0.8em;
+  }
+  @media (min-width: 500px) and (min-height: 500px) {
+    font-size: 0.9em;
+  }
+  @media (min-width: 600px) and (min-height: 600px) {
+    font-size: 1em;
+  }
+  @media (min-width: 700px) and (min-height: 700px) {
+    font-size: 1.2em;
+  }
+  @media (min-width: 900px) and (min-height: 900px) {
+    font-size: 1.5em;
+  }
 
   canvas,
   &_info {
@@ -32,17 +54,20 @@
       padding-bottom: 2px;
     }
 
+    &_time {
+      font-size: 2.5em;
+    }
     &_date,
     &_timezone,
     &_weather_temperature-min-max {
-      font-size: 0.2em;
+      font-size: 0.75em;
     }
 
     &_weather {
       color: $amber-700;
 
       &_temperature-current {
-        font-size: 0.5em;
+        font-size: 1.5em;
       }
     }
   }

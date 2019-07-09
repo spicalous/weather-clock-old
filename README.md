@@ -8,7 +8,7 @@ Displays weather data on a 24hr clock face
   - e.g. If the current time is 00:00, the data point at 00:00 will be for the current day until 01:00, where 00:00 will then be updated for the next day
 
 # TODO
-- best rem em font-size for clock info
 - finite list of selectable cities
 - display sunrise/sunset
 - display precipitation
+- improve responsive font-sizes
