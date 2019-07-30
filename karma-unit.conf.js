@@ -1,7 +1,9 @@
+const debug = process.argv.some(value => value === "--debug");
+
 module.exports = function(config) {
   config.set({
-    singleRun: true,
-    browsers: ["ChromeHeadless"],
+    singleRun: !debug,
+    browsers: [debug ? "Chrome" : "ChromeHeadless"],
     frameworks: ["mocha", "chai"],
     files: ["test/unit/**/*-test.js"],
     reporters: ["progress"],
