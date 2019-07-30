@@ -1,6 +1,4 @@
 import { Time } from "../model/time";
-import { chunkBy } from "../util/array";
-import { isDefined, isNull } from "../util/object";
 
 /**
  * Container for semi processed weather data
@@ -32,15 +30,8 @@ export default class Weather {
     };
   }
 
-  getPrecipitationData(start: number, end: number): HourlyData[][] {
-    const visibleData = this._getVisible(this._hourly, start, end);
-    const precipitation = visibleData.map((d): HourlyData | null => d.precipProbability && d.precipProbability >= 0.5 ? d : null);
-
-    if (precipitation.filter(isDefined).length > 0) {
-      return chunkBy<HourlyData, null>(precipitation, isNull);
-    }
-
-    return [];
+  getPrecipitationData(start: number, end: number): HourlyData[] {
+    return this._getVisible(this._hourly, start, end);
   }
 
   getSunsetSunriseData(time: number): { sunriseTime?: number; sunsetTime?: number } {

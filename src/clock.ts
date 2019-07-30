@@ -1,4 +1,5 @@
-import { lineRadial, LineRadial, curveCatmullRomClosed, curveLinear } from "d3-shape";
+import { areaRadial, AreaRadial, lineRadial, LineRadial, curveCatmullRomClosed, curveCatmullRom, curveLinear } from "d3-shape";
+import { PrecipitationIntensity, inchesToPrecipitationIntensity } from "./model/precipitation-intensity";
 import { Time } from "./model/time";
 import Weather from "./model/weather";
 import { hexToRGBA } from "./util/colour";
@@ -7,6 +8,12 @@ import { padZero } from "./util/string";
 import Canvas from "./canvas";
 
 const PERCENTAGE_OF_OUTER_RADIUS_FOR_INNER_RADIUS = 0.4;
+const PRECIPITATION_PERCENTAGE_MAP = {
+  [PrecipitationIntensity.LIGHT]: 0.08,
+  [PrecipitationIntensity.MODERATE]: 0.3,
+  [PrecipitationIntensity.HEAVY]: 0.6,
+  [PrecipitationIntensity.VIOLENT]: 0.9
+};
 const TWENTY_FOURTH = Math.PI / 12;
 const CYAN_700 = "#0097A7";
 const AMBER_700 = "#FFA000";
@@ -17,6 +24,7 @@ export default class Clock {
 
   private _container: HTMLElement;
   private _line: LineRadial<[number, number]>;
+  private _area: AreaRadial<[number, number]>;
   private _weatherClockContainer: HTMLElement;
   private _bgCanvas: Canvas;
   private _weatherCanvas: Canvas;
@@ -39,6 +47,7 @@ export default class Clock {
   constructor(container: HTMLElement) {
     this._container = container;
     this._line = lineRadial();
+    this._area = areaRadial();
     this._weatherClockContainer = createElement("div", "weather-clock");
     this._bgCanvas = new Canvas(this._weatherClockContainer, "weather-clock_canvas-bg");
     this._weatherCanvas = new Canvas(this._weatherClockContainer, "weather-clock_canvas-weather");
@@ -79,6 +88,7 @@ export default class Clock {
     this._fgCanvas.destroy();
     this._weatherCanvas.destroy();
     delete this._line;
+    delete this._area;
     delete this._bgCanvas;
     delete this._fgCanvas;
     delete this._minTempContainer;
@@ -144,6 +154,7 @@ export default class Clock {
 
     this._timezoneContainer.innerText = `${weather.getTimezone()}`;
     this._drawTemperature(context, this._radius, this._innerRadius, temperatures.min, temperatures.max, temperatures.data);
+    this._drawPrecipitation(context, this._radius, this._innerRadius, weather.getPrecipitationData(startTime, endTime + Time.HOUR));
   }
 
   private _drawTemperature(context: CanvasRenderingContext2D, radius: number, innerRadius: number, min: number, max: number, temperatures: HourlyData[]): void {
@@ -183,6 +194,33 @@ export default class Clock {
     this._minTempContainer.innerText = Number.isFinite(min) ? `${min}°C` : "";
   }
 
+  private _drawPrecipitation(context: CanvasRenderingContext2D, radius: number, innerRadius: number, precipitationData: HourlyData[]): void {
+    const ariaRadialInnerRadius = this._innerRadius * 1.04;
+    // TODO hardcode RGBA
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    context.fillStyle = hexToRGBA(CYAN_700, 0.25)!;
+    this._area.context(context);
+    this._area.curve(curveCatmullRom);
+    this._area.innerRadius(ariaRadialInnerRadius);
+    const areaData: [number, number][] = precipitationData.length 
+      ? [[(new Date(precipitationData[0].time).getHours() - 1) * TWENTY_FOURTH, ariaRadialInnerRadius]]
+      : [];
+    
+    for (let i = 0; i < precipitationData.length; i++) {
+      const precipitation = precipitationData[i];
+      const angle = new Date(precipitation.time).getHours() * TWENTY_FOURTH;
+      if (precipitation.precipIntensity && precipitation.precipType && precipitation.precipProbability && precipitation.precipProbability > 0.1) {
+        const radius = innerRadius + (this._distance * 0.8) * PRECIPITATION_PERCENTAGE_MAP[inchesToPrecipitationIntensity(precipitation.precipIntensity)];
+        areaData.push([angle, radius]);
+      } else {
+        areaData.push([angle, ariaRadialInnerRadius]);
+      }
+    }
+    context.beginPath();
+    this._area(areaData);
+    context.fill();
+  }
+
   private _drawBackground(canvas: Canvas, radius: number, innerRadius: number): void {
     canvas.clear("#000000");
     const context = canvas.getContext();
@@ -197,8 +235,9 @@ export default class Clock {
     this._drawCircle(context, innerRadius);
     context.stroke();
 
+    // TODO hardcode RGBA
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    context.strokeStyle = hexToRGBA(CYAN_700, 0.7)!; // TODO hardcode
+    context.strokeStyle = hexToRGBA(CYAN_700, 0.7)!;
     context.lineWidth = 1;
     context.beginPath();
     this._drawCircle(context, radius * 1.01);
