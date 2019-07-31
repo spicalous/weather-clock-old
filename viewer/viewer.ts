@@ -1,6 +1,6 @@
 import WeatherClock from "../src/index";
 
-function onDOMContentLoaded() {
+function onDOMContentLoaded(): void {
   window.removeEventListener("DOMContentLoaded", onDOMContentLoaded);
   new WeatherClock(document.body);
 }

@@ -2,11 +2,23 @@ const merge = require("webpack-merge");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpackConfig = require("./webpack.common.config.js");
 
+const babelOptions = {
+  presets: [
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": "entry",
+        "corejs": "2.6.9"
+      }
+    ]
+  ]
+};
+
 module.exports = merge(webpackConfig, {
   mode: "production",
   entry: {
-    "weather-clock": ["./styles/main.scss", "./src/index.js"],
-    "weather-clock-polyfilled": ["@babel/polyfill", "whatwg-fetch", "./src/index.js"],
+    "weather-clock": ["./styles/main.scss", "./src/index.ts"],
+    "weather-clock-polyfilled": ["@babel/polyfill", "whatwg-fetch", "./src/index.ts"],
   },
   plugins: [
     new MiniCssExtractPlugin()
@@ -14,22 +26,17 @@ module.exports = merge(webpackConfig, {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.ts$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: [
-              [
-                "@babel/preset-env",
-                {
-                  "useBuiltIns": "entry",
-                  "corejs": "2.6.9"
-                }
-              ]
-            ]
+        use: [
+          {
+            loader: "babel-loader",
+            options: babelOptions
+          },
+          {
+            loader: "ts-loader"
           }
-        }
+        ]
       },
       {
         test: /\.scss$/,

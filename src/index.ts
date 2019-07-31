@@ -5,15 +5,25 @@ const TIME_UPDATE_FREQ = 500;
 const URL = "https://9k0pyk23f0.execute-api.eu-west-2.amazonaws.com/default/weatherClockCacheApi?fbclid=IwAR2mNngokPFwXQqMoRJcXPSwhE6SyLmCqVCqlUsSN2R1y08TZc-Xl1rjf0g";
 
 export default class WeatherClock {
+  
+  private _clock: Clock;
+  private _boundResize: EventListener;
+  private _boundUpdate: FrameRequestCallback;
+  private _boundInit: EventListener;
+  private _lastUpdatedTime: number;
+  private _lastUpdatedWeather: number;
+  private _initTimeoutId: number;
+  private _updateId: number;
+  private _updateTimeId: number;
 
-  /**
-   * @param {HTMLElement} container
-   */
-  constructor(container) {
+  constructor(container: HTMLElement) {
     this._clock = new Clock(container);
     this._boundResize = this._resize.bind(this);
-    this._boundInit = this._init.bind(this);
     this._boundUpdate = this._update.bind(this);
+    this._boundInit = this._init.bind(this);
+    this._updateId = 0;
+    this._updateTimeId = 0;
+
     this._lastUpdatedTime = 0;
     this._lastUpdatedWeather = -1;
 
@@ -22,7 +32,7 @@ export default class WeatherClock {
     window.addEventListener("resize", this._boundResize);
   }
 
-  destroy() {
+  destroy(): void {
     clearTimeout(this._initTimeoutId);
     delete this._initTimeoutId;
     window.removeEventListener("resize", this._boundResize);
@@ -35,13 +45,13 @@ export default class WeatherClock {
     delete this._lastUpdatedWeather;
   }
 
-  _init() {
+  _init(): void {
     this._resize();
     this._updateWeather(new Date());
     this._updateId = window.requestAnimationFrame(this._boundUpdate);
   }
 
-  _update(timestamp) {
+  _update(timestamp: number): void {
     if (this._lastUpdatedTime + TIME_UPDATE_FREQ < timestamp) {
       this._lastUpdatedTime = timestamp;
       const time = new Date();
@@ -51,7 +61,7 @@ export default class WeatherClock {
     this._updateTimeId = window.requestAnimationFrame(this._boundUpdate);
   }
 
-  _updateWeather(time) {
+  _updateWeather(time: Date): void {
     if (this._lastUpdatedWeather < time.getHours() || (time.getHours() === 0 && this._lastUpdatedWeather !== 0)) {
       this._lastUpdatedWeather = time.getHours();
       this._fetchData(URL)
@@ -60,22 +70,19 @@ export default class WeatherClock {
     }
   }
 
-  _resize() {
+  _resize(): void {
     this._clock.resize();
   }
 
-  /**
-   * @param {string} url
-   */
-  _fetchData(url) {
+  _fetchData(url: string): Promise<unknown> {
     return fetch(url)
-      .then(res => {
+      .then((res): Promise<unknown> => {
         if (!res.ok) {
           throw Error(res.statusText);
         }
         return res.json();
       })
-      .catch(error => {
+      .catch((error): null => {
         // eslint-disable-next-line no-console
         console.error(error);
         return null;

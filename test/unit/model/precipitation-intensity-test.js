@@ -1,6 +1,6 @@
-import { PrecipitationIntensity, inchesToPrecipitationIntensity } from "../../../src/enum/precipitation-intensity";
+import { PrecipitationIntensity, inchesToPrecipitationIntensity } from "../../../src/model/precipitation-intensity";
 
-describe("enum/precipitation-intensity", function() {
+describe("model/precipitation-intensity", function() {
 
   it("inches to precipitation intensity", function() {
     assert.strictEqual(inchesToPrecipitationIntensity(0), PrecipitationIntensity.LIGHT);

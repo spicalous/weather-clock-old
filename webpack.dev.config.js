@@ -6,7 +6,7 @@ const webpackConfig = require("./webpack.common.config.js");
 module.exports = merge(webpackConfig, {
   mode: "development",
   entry: {
-    viewer: ["./viewer/viewer.scss", "./viewer/viewer.js"]
+    viewer: ["./viewer/viewer.scss", "./viewer/viewer.ts"]
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -16,6 +16,9 @@ module.exports = merge(webpackConfig, {
   ],
   module: {
     rules: [
+      {
+        test: /\.ts$/, loader: "ts-loader"
+      },
       {
         test: /\.scss$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]

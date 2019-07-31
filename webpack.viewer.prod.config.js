@@ -3,10 +3,22 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpackConfig = require("./webpack.common.config.js");
 
+const babelOptions = {
+  presets: [
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": "entry",
+        "corejs": "2.6.9"
+      }
+    ]
+  ]
+};
+
 module.exports = merge(webpackConfig, {
   mode: "production",
   entry: {
-    viewer: ["./viewer/viewer.scss", "@babel/polyfill", "whatwg-fetch", "./viewer/viewer.js"]
+    viewer: ["./viewer/viewer.scss", "@babel/polyfill", "whatwg-fetch", "./viewer/viewer.ts"]
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -17,22 +29,17 @@ module.exports = merge(webpackConfig, {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.ts$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: [
-              [
-                "@babel/preset-env",
-                {
-                  "useBuiltIns": "entry",
-                  "corejs": "2.6.9"
-                }
-              ]
-            ]
+        use: [
+          {
+            loader: "babel-loader",
+            options: babelOptions
+          },
+          {
+            loader: "ts-loader"
           }
-        }
+        ]
       },
       {
         test: /\.scss$/,

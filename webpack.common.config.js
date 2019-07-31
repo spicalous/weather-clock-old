@@ -8,5 +8,8 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin()
-  ]
+  ],
+  resolve: {
+    extensions: [".ts", ".js"]
+  }
 };

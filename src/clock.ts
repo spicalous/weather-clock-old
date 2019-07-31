@@ -1,9 +1,9 @@
-import { lineRadial, curveCatmullRomClosed, curveBasisClosed, curveLinear } from "d3-shape";
+import { lineRadial, LineRadial, curveCatmullRomClosed, curveBasisClosed, curveLinear } from "d3-shape";
+import { Time } from "./model/time";
 import Weather from "./model/weather";
 import { hexToRGBA } from "./util/colour";
 import { createElement } from "./util/dom";
 import { padZero } from "./util/string";
-import { TIME } from "./util/time";
 import Canvas from "./canvas";
 
 const PERCENTAGE_OF_OUTER_RADIUS_FOR_INNER_RADIUS = 0.4;
@@ -16,10 +16,26 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 
 export default class Clock {
 
-  /**
-   * @param {HTMLElement} container
-   */
-  constructor(container) {
+  private _container: HTMLElement;
+  private _line: LineRadial<[number, number]>;
+  private _weatherClockContainer: HTMLElement;
+  private _bgCanvas: Canvas;
+  private _weatherCanvas: Canvas;
+  private _fgCanvas: Canvas;
+  private _infoContainer: HTMLElement;
+  private _dateContainer: HTMLElement;
+  private _timeContainer: HTMLElement;
+  private _timezoneContainer: HTMLElement;
+  private _weatherContainer: HTMLElement;
+  private _currentTempContainer: HTMLElement;
+  private _maxTempContainer: HTMLElement;
+  private _minTempContainer: HTMLElement;
+  private _radius: number;
+  private _innerRadius: number;
+  private _time: Date;
+  private _weather: Weather;
+  
+  constructor(container: HTMLElement) {
     this._container = container;
     this._line = lineRadial();
     this._weatherClockContainer = createElement("div", "weather-clock");
@@ -54,7 +70,7 @@ export default class Clock {
     this._weather = new Weather("", [], []);
   }
 
-  destroy() {
+  destroy(): void {
     this._container.removeChild(this._weatherClockContainer);
     this._bgCanvas.destroy();
     this._fgCanvas.destroy();
@@ -74,13 +90,14 @@ export default class Clock {
     delete this._container;
   }
 
-  resize() {
+  resize(): void{
     const boundingClientRect = this._weatherClockContainer.getBoundingClientRect();
     const diameter = Math.min(boundingClientRect.width, boundingClientRect.height);
     this._bgCanvas.setDimensions(diameter, diameter);
     this._fgCanvas.setDimensions(diameter, diameter);
     this._weatherCanvas.setDimensions(diameter, diameter);
-    this._infoContainer.style = `width: ${diameter}px; height: ${diameter}px;`;
+    this._infoContainer.style.width = `${diameter}px;` 
+    this._infoContainer.style.height = `${diameter}px;`;
 
     this._radius = diameter / 2;
     this._innerRadius = this._radius * PERCENTAGE_OF_OUTER_RADIUS_FOR_INNER_RADIUS;
@@ -93,7 +110,7 @@ export default class Clock {
   /**
    * @param {Date} currentTime
    */
-  setTime(currentTime) {
+  setTime(currentTime: Date): void {
     this._time = currentTime;
     this._fgCanvas.clear();
     const context = this._fgCanvas.getContext();
@@ -110,10 +127,7 @@ export default class Clock {
     this._timeContainer.innerText = `${padZero(this._time.getHours())}:${padZero(this._time.getMinutes())}`;
   }
 
-  /**
-   * @param {Weather} weather
-   */
-  setWeather(weather) {
+  setWeather(weather: Weather): void {
     this._weather = weather;
     this._weatherCanvas.clear();
     const context = this._weatherCanvas.getContext();
@@ -121,30 +135,22 @@ export default class Clock {
     context.textAlign = "center";
     context.textBaseline = "middle";
 
-    const startTime = this._time.getTime() - TIME.HOUR;
-    const endTime = startTime + TIME.DAY;
+    const startTime = this._time.getTime() - Time.HOUR;
+    const endTime = startTime + Time.DAY;
     const temperatures = weather.getTemperatureData(startTime, endTime);
 
     this._timezoneContainer.innerText = `${weather.getTimezone()}`;
     this._drawTemperature(context, this._radius, this._innerRadius, temperatures.min, temperatures.max, temperatures.data);
   }
 
-  /**
-   * @param {CanvasRenderingContext2D} context
-   * @param {number} radius
-   * @param {number} innerRadius
-   * @param {number} min
-   * @param {number} max
-   * @param {object[]} temperatures
-   */
-  _drawTemperature(context, radius, innerRadius, min, max, temperatures) {
+  _drawTemperature(context: CanvasRenderingContext2D, radius: number, innerRadius: number, min: number, max: number, temperatures: HourlyData[]): void {
     this._line.curve(curveCatmullRomClosed);
     this._line.context(context);
 
     context.fillStyle = AMBER_700;
     context.strokeStyle = AMBER_700;
 
-    let lineData = [];
+    const lineData: [number, number][] = [];
     for (let i = 0; i < temperatures.length; i++) {
       const angle = new Date(temperatures[i].time).getHours() * TWENTY_FOURTH;
       const temperatureRadius = innerRadius + (innerRadius * ((temperatures[i].temperature - min) / (max - min)));
@@ -154,7 +160,7 @@ export default class Clock {
         if (temperatures[i - 1] && (temperatures[i - 1].temperature === min || temperatures[i - 1].temperature === max)) {
           continue; // previous data point already drew min / max text
         } else {
-          context.fillText(temperatures[i].temperature, temperatureRadius * 1.07 * Math.sin(angle), temperatureRadius * 1.07 * -Math.cos(angle));
+          context.fillText(`${temperatures[i].temperature}`, temperatureRadius * 1.07 * Math.sin(angle), temperatureRadius * 1.07 * -Math.cos(angle));
         }
       }
     }
@@ -168,12 +174,7 @@ export default class Clock {
     this._minTempContainer.innerText = Number.isFinite(min) ? `${min}°C` : "";
   }
 
-  /**
-   * @param {Canvas} canvas
-   * @param {number} radius
-   * @param {number} innerRadius
-   */
-  _drawBackground(canvas, radius, innerRadius) {
+  _drawBackground(canvas: Canvas, radius: number, innerRadius: number): void {
     canvas.clear("#000000");
     const context = canvas.getContext();
     context.translate(this._radius, this._radius);
@@ -188,7 +189,8 @@ export default class Clock {
     this._drawCircle(this._line, innerRadius);
     context.stroke();
 
-    context.strokeStyle = hexToRGBA(CYAN_700, 0.7);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    context.strokeStyle = hexToRGBA(CYAN_700, 0.7)! // TODO hardcode;
     context.lineWidth = 1;
     context.beginPath();
     this._drawCircle(this._line, radius * 1.01);
@@ -205,11 +207,7 @@ export default class Clock {
     context.stroke();
   }
 
-  /**
-   * @param {lineRadial} line
-   * @param {number} radius
-   */
-  _drawCircle(line, radius) {
+  _drawCircle(line: LineRadial<[number, number]>, radius: number): void {
     line([
       [0, radius],
       [EIGHTH, radius],
@@ -221,12 +219,7 @@ export default class Clock {
       [Math.PI + EIGHTH * 3, radius]]);
   }
 
-  /**
-   * @param {lineRadial} line
-   * @param {CanvasRenderingContext2D} context
-   * @param {number} radius
-   */
-  _drawClockTicks(line, context, radius) {
+  _drawClockTicks(line: LineRadial<[number, number]>, context: CanvasRenderingContext2D, radius: number): void {
     for (let i = 0; i < 24; i++) {
       const radians = i * TWENTY_FOURTH;
 
@@ -234,16 +227,11 @@ export default class Clock {
         [radians, radius * 0.9],
         [radians, radius * 0.925]]);
 
-      context.fillText(i, radius * 0.95 * Math.sin(radians), radius * 0.95 * -Math.cos(radians));
+      context.fillText(`${i}`, radius * 0.95 * Math.sin(radians), radius * 0.95 * -Math.cos(radians));
     }
   }
 
-  /**
-   * @param {lineRadial} line
-   * @param {number} radius
-   * @param {Date} date
-   */
-  _drawCurrentTimeLine(line, radius, innerRadius, date) {
+  _drawCurrentTimeLine(line: LineRadial<[number, number]>, radius: number, innerRadius: number, date: Date): void {
     const angle = (date.getHours() * TWENTY_FOURTH) + (date.getMinutes() * (TWENTY_FOURTH / 60));
     line([
       [angle, radius * 0.36],

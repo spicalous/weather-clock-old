@@ -1,37 +1,36 @@
+type ChunkPredicateFn<T, ChunkBy> = (value: T | ChunkBy) => value is ChunkBy;
+
 /**
  * Chunks array into multiple arrays by removing values when predicate is true
- *
- * @param {Array} arr
- * @param {Function} predicate
  */
-export function chunkBy(array, predicate) {
-  let result = [];
-  let chunk;
+export function chunkBy<T, ChunkBy>(array: (T | ChunkBy)[], predicate: ChunkPredicateFn<T, ChunkBy>): T[][] {
+  const result: T[][] = [];
+  let chunk: T[] | null = null;
 
   for (let i = 0; i < array.length; i++) {
-    if (predicate(array[i])) {
+    const value = array[i];
+    if (predicate(value)) {
       chunk = null;
     } else {
       if (!chunk) {
         chunk = [];
         result.push(chunk);
       }
-      chunk.push(array[i]);
+      chunk.push(value);
     }
   }
 
   return result;
 }
 
+type PredicateFn<T> = (value: T) => boolean;
+
 /**
  * Split array into multiple arrays creating a new bucket when predicate is true
- *
- * @param {Array} arr
- * @param {Function} predicate
  */
-export function splitBy(array, predicate) {
-  let result = [];
-  let chunk;
+export function splitBy<T>(array: T[], predicate: PredicateFn<T>): T[][] {
+  const result: T[][] = [];
+  let chunk: T[] | null = null;
 
   for (let i = 0; i < array.length; i++) {
     if (predicate(array[i])) {

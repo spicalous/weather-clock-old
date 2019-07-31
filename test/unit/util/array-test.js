@@ -1,6 +1,5 @@
 import { chunkBy, splitBy } from "../../../src/util/array";
-
-const isNull = (value) => value === null;
+import { isNull } from "../../../src/util/object";
 
 describe("util/array", function() {
 

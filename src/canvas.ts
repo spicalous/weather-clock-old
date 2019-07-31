@@ -1,38 +1,32 @@
 import { createElement } from "./util/dom";
 
+function getBackingStoreRatio(): number {
+  // @ts-ignore
+  return window.webkitBackingStorePixelRatio || window.mozBackingStorePixelRatio || window.msBackingStorePixelRatio || window.oBackingStorePixelRatio || window.backingStorePixelRatio 
+    || 1;
+}
 const DEVICE_RATIO = window.devicePixelRatio || 1;
-const BACKING_STORE_RATIO = window.webkitBackingStorePixelRatio
-  || window.mozBackingStorePixelRatio
-  || window.msBackingStorePixelRatio
-  || window.oBackingStorePixelRatio
-  || window.backingStorePixelRatio
-  || 1;
-const PIXEL_RATIO = DEVICE_RATIO / BACKING_STORE_RATIO;
+const PIXEL_RATIO = DEVICE_RATIO / getBackingStoreRatio();
 
 export default class Canvas {
 
-  /**
-   * @param {HTMLElement} container
-   * @param {string} className
-   */
-  constructor(container, className) {
+  private _container: HTMLElement;
+  private _canvas: HTMLCanvasElement;
+  private _context: CanvasRenderingContext2D;
+
+  constructor(container: HTMLElement, className: string) {
     this._container = container;
     this._canvas = createElement("canvas", className);
-    this._context = this._canvas.getContext("2d");
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this._context = this._canvas.getContext("2d")!; // TODO remove non-null assertion
     this._container.appendChild(this._canvas);
   }
 
-  /**
-   * @returns {CanvasRenderingContext2D}
-   */
-  getContext() {
+  getContext(): CanvasRenderingContext2D {
     return this._context;
   }
 
-  /**
-   * @param {string} [fillStyle]
-   */
-  clear(fillStyle) {
+  clear(fillStyle?: string): void {
     this._context.setTransform(1, 0, 0, 1, 0, 0);
     this._context.scale(PIXEL_RATIO, PIXEL_RATIO);
     if (fillStyle) {
@@ -43,11 +37,7 @@ export default class Canvas {
     }
   }
 
-  /**
-   * @param {number} width
-   * @param {number} height
-   */
-  setDimensions(width, height) {
+  setDimensions(width: number, height: number): void {
     this._canvas.width = width * PIXEL_RATIO;
     this._canvas.height = height * PIXEL_RATIO;
     this._canvas.style.width = `${width}px`;
@@ -55,10 +45,7 @@ export default class Canvas {
     this._context.scale(PIXEL_RATIO, PIXEL_RATIO);
   }
 
-  /**
-   *
-   */
-  destroy() {
+  destroy(): void {
     this._container.removeChild(this._canvas);
     delete this._context;
     delete this._canvas;

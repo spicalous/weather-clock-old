@@ -11,7 +11,18 @@ module.exports = function(config) {
       "test/unit/**/*-test.js": ["webpack"]
     },
     webpack: {
-      mode: "none"
+      mode: "none",
+      module: {
+        rules: [
+          {
+            test: /\.ts$/,
+            loader: "ts-loader"
+          }
+        ]
+      },
+      resolve: {
+        extensions: [".ts", ".js"]
+      }
     },
     colors: true,
     logLevel: config.LOG_INFO,
