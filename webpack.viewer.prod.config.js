@@ -18,7 +18,7 @@ const babelOptions = {
 module.exports = merge(webpackConfig, {
   mode: "production",
   entry: {
-    viewer: ["./viewer/viewer.scss", "@babel/polyfill", "whatwg-fetch", "./viewer/viewer.ts"]
+    viewer: ["./viewer/viewer.scss", "core-js/stable", "regenerator-runtime/runtime", "whatwg-fetch", "./viewer/viewer.ts"]
   },
   plugins: [
     new HtmlWebpackPlugin({

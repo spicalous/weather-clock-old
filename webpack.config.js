@@ -18,7 +18,7 @@ module.exports = merge(webpackConfig, {
   mode: "production",
   entry: {
     "weather-clock": ["./styles/main.scss", "./src/index.ts"],
-    "weather-clock-polyfilled": ["@babel/polyfill", "whatwg-fetch", "./src/index.ts"],
+    "weather-clock-polyfilled": ["core-js/stable", "regenerator-runtime/runtime", "whatwg-fetch", "./src/index.ts"],
   },
   plugins: [
     new MiniCssExtractPlugin()

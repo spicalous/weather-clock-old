@@ -96,7 +96,7 @@ export default class Clock {
     this._bgCanvas.setDimensions(diameter, diameter);
     this._fgCanvas.setDimensions(diameter, diameter);
     this._weatherCanvas.setDimensions(diameter, diameter);
-    this._infoContainer.style.width = `${diameter}px;` 
+    this._infoContainer.style.width = `${diameter}px;`;
     this._infoContainer.style.height = `${diameter}px;`;
 
     this._radius = diameter / 2;
@@ -190,7 +190,7 @@ export default class Clock {
     context.stroke();
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    context.strokeStyle = hexToRGBA(CYAN_700, 0.7)! // TODO hardcode;
+    context.strokeStyle = hexToRGBA(CYAN_700, 0.7)!; // TODO hardcode
     context.lineWidth = 1;
     context.beginPath();
     this._drawCircle(this._line, radius * 1.01);
