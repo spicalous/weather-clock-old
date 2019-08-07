@@ -62,7 +62,7 @@ export default class Weather {
     delete this._daily;
   }
 
-  _getVisible<T extends { time: number }>(data: T[], start: number, end: number): T[] {
+  private _getVisible<T extends { time: number }>(data: T[], start: number, end: number): T[] {
     return data.filter((d): boolean => start < d.time && d.time <= end);
   }
 

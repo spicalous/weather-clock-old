@@ -45,13 +45,13 @@ export default class WeatherClock {
     delete this._lastUpdatedWeather;
   }
 
-  _init(): void {
+  private _init(): void {
     this._resize();
     this._updateWeather(new Date());
     this._updateId = window.requestAnimationFrame(this._boundUpdate);
   }
 
-  _update(timestamp: number): void {
+  private _update(timestamp: number): void {
     if (this._lastUpdatedTime + TIME_UPDATE_FREQ < timestamp) {
       this._lastUpdatedTime = timestamp;
       const time = new Date();
@@ -61,7 +61,7 @@ export default class WeatherClock {
     this._updateTimeId = window.requestAnimationFrame(this._boundUpdate);
   }
 
-  _updateWeather(time: Date): void {
+  private _updateWeather(time: Date): void {
     if (this._lastUpdatedWeather < time.getHours() || (time.getHours() === 0 && this._lastUpdatedWeather !== 0)) {
       this._lastUpdatedWeather = time.getHours();
       this._fetchData(URL)
@@ -70,11 +70,11 @@ export default class WeatherClock {
     }
   }
 
-  _resize(): void {
+  private _resize(): void {
     this._clock.resize();
   }
 
-  _fetchData(url: string): Promise<unknown> {
+  private _fetchData(url: string): Promise<unknown> {
     return fetch(url)
       .then((res): Promise<unknown> => {
         if (!res.ok) {

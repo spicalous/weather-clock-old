@@ -1,4 +1,4 @@
-import { lineRadial, LineRadial, curveCatmullRomClosed, curveBasisClosed, curveLinear } from "d3-shape";
+import { lineRadial, LineRadial, curveCatmullRomClosed, curveLinear } from "d3-shape";
 import { Time } from "./model/time";
 import Weather from "./model/weather";
 import { hexToRGBA } from "./util/colour";
@@ -7,7 +7,6 @@ import { padZero } from "./util/string";
 import Canvas from "./canvas";
 
 const PERCENTAGE_OF_OUTER_RADIUS_FOR_INNER_RADIUS = 0.4;
-const EIGHTH = Math.PI / 4;
 const TWENTY_FOURTH = Math.PI / 12;
 const CYAN_700 = "#0097A7";
 const AMBER_700 = "#FFA000";
@@ -30,8 +29,10 @@ export default class Clock {
   private _currentTempContainer: HTMLElement;
   private _maxTempContainer: HTMLElement;
   private _minTempContainer: HTMLElement;
+  private _midPoint: number;
   private _radius: number;
   private _innerRadius: number;
+  private _distance: number;
   private _time: Date;
   private _weather: Weather;
   
@@ -64,8 +65,10 @@ export default class Clock {
     this._weatherClockContainer.appendChild(this._infoContainer);
     this._container.appendChild(this._weatherClockContainer);
 
+    this._midPoint = 0;
     this._radius = 0;
     this._innerRadius = 0;
+    this._distance = 0;
     this._time = new Date();
     this._weather = new Weather("", [], []);
   }
@@ -92,35 +95,35 @@ export default class Clock {
 
   resize(): void{
     const boundingClientRect = this._weatherClockContainer.getBoundingClientRect();
-    const diameter = Math.min(boundingClientRect.width, boundingClientRect.height);
-    this._bgCanvas.setDimensions(diameter, diameter);
-    this._fgCanvas.setDimensions(diameter, diameter);
-    this._weatherCanvas.setDimensions(diameter, diameter);
-    this._infoContainer.style.width = `${diameter}px;`;
-    this._infoContainer.style.height = `${diameter}px;`;
+    const shortestLength = Math.min(boundingClientRect.width, boundingClientRect.height);
+    this._bgCanvas.setDimensions(shortestLength, shortestLength);
+    this._fgCanvas.setDimensions(shortestLength, shortestLength);
+    this._weatherCanvas.setDimensions(shortestLength, shortestLength);
+    this._infoContainer.style.width = `${shortestLength}px;`;
+    this._infoContainer.style.height = `${shortestLength}px;`;
 
-    this._radius = diameter / 2;
+    this._midPoint = shortestLength / 2;
+    this._radius = 0.9 * (shortestLength / 2);
     this._innerRadius = this._radius * PERCENTAGE_OF_OUTER_RADIUS_FOR_INNER_RADIUS;
+    this._distance = this._radius - this._innerRadius;
 
     this._drawBackground(this._bgCanvas, this._radius, this._innerRadius);
     this.setTime(this._time);
     this.setWeather(this._weather);
   }
 
-  /**
-   * @param {Date} currentTime
-   */
   setTime(currentTime: Date): void {
     this._time = currentTime;
     this._fgCanvas.clear();
     const context = this._fgCanvas.getContext();
-    context.translate(this._radius, this._radius);
+    context.translate(this._midPoint, this._midPoint);
     context.strokeStyle = CYAN_700;
     context.lineWidth = 2;
     context.beginPath();
     this._line.context(context);
     this._line.curve(curveLinear);
-    this._drawCurrentTimeLine(this._line, this._radius, this._innerRadius, this._time);
+    const angle = (this._time.getHours() * TWENTY_FOURTH) + (this._time.getMinutes() * (TWENTY_FOURTH / 60));
+    this._line([[angle, this._innerRadius], [angle, this._radius]]);
     context.stroke();
 
     this._dateContainer.innerText = `${DAYS[this._time.getDay()]} ${this._time.getDate()} ${MONTHS[this._time.getMonth()]}`;
@@ -131,7 +134,7 @@ export default class Clock {
     this._weather = weather;
     this._weatherCanvas.clear();
     const context = this._weatherCanvas.getContext();
-    context.translate(this._radius, this._radius);
+    context.translate(this._midPoint, this._midPoint);
     context.textAlign = "center";
     context.textBaseline = "middle";
 
@@ -143,7 +146,7 @@ export default class Clock {
     this._drawTemperature(context, this._radius, this._innerRadius, temperatures.min, temperatures.max, temperatures.data);
   }
 
-  _drawTemperature(context: CanvasRenderingContext2D, radius: number, innerRadius: number, min: number, max: number, temperatures: HourlyData[]): void {
+  private _drawTemperature(context: CanvasRenderingContext2D, radius: number, innerRadius: number, min: number, max: number, temperatures: HourlyData[]): void {
     this._line.curve(curveCatmullRomClosed);
     this._line.context(context);
 
@@ -153,14 +156,20 @@ export default class Clock {
     const lineData: [number, number][] = [];
     for (let i = 0; i < temperatures.length; i++) {
       const angle = new Date(temperatures[i].time).getHours() * TWENTY_FOURTH;
-      const temperatureRadius = innerRadius + (innerRadius * ((temperatures[i].temperature - min) / (max - min)));
+      const temperaturePercentage = (temperatures[i].temperature - min) / (max - min);
+      // inner padding (0.05) must be no larger than (1 - x) / 2, currently x = 0.8
+      const temperatureRadius = innerRadius + (this._distance * 0.05) + ((this._distance * 0.8) * temperaturePercentage);
+      
       lineData.push([angle, temperatureRadius]);
 
+      const padding = Math.max(7, Math.min(0.07 * temperatureRadius, 10));
       if (temperatures[i].temperature === min || temperatures[i].temperature === max) {
-        if (temperatures[i - 1] && (temperatures[i - 1].temperature === min || temperatures[i - 1].temperature === max)) {
-          continue; // previous data point already drew min / max text
+        const previousMinOrMax = temperatures[i - 1] && (temperatures[i - 1].temperature === min || temperatures[i - 1].temperature === max);
+        const nextMinOrMax = temperatures[i + 1] && (temperatures[i + 1].temperature === min || temperatures[i + 1].temperature === max);
+        if (previousMinOrMax && nextMinOrMax) {
+          continue; // between min/max already, do not label
         } else {
-          context.fillText(`${temperatures[i].temperature}`, temperatureRadius * 1.07 * Math.sin(angle), temperatureRadius * 1.07 * -Math.cos(angle));
+          context.fillText(`${temperatures[i].temperature}`, (padding + temperatureRadius) * Math.sin(angle), (padding + temperatureRadius) * -Math.cos(angle));
         }
       }
     }
@@ -174,27 +183,26 @@ export default class Clock {
     this._minTempContainer.innerText = Number.isFinite(min) ? `${min}°C` : "";
   }
 
-  _drawBackground(canvas: Canvas, radius: number, innerRadius: number): void {
+  private _drawBackground(canvas: Canvas, radius: number, innerRadius: number): void {
     canvas.clear("#000000");
     const context = canvas.getContext();
-    context.translate(this._radius, this._radius);
+    context.translate(this._midPoint, this._midPoint);
 
-    this._line.curve(curveBasisClosed);
     this._line.context(context);
 
     context.strokeStyle = CYAN_700;
     context.lineWidth = 2;
     context.beginPath();
-    this._drawCircle(this._line, radius);
-    this._drawCircle(this._line, innerRadius);
+    this._drawCircle(context, radius);
+    this._drawCircle(context, innerRadius);
     context.stroke();
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     context.strokeStyle = hexToRGBA(CYAN_700, 0.7)!; // TODO hardcode
     context.lineWidth = 1;
     context.beginPath();
-    this._drawCircle(this._line, radius * 1.01);
-    this._drawCircle(this._line, innerRadius * 1.02);
+    this._drawCircle(context, radius * 1.01);
+    this._drawCircle(context, innerRadius * 1.02);
     context.stroke();
 
     context.lineWidth = 2;
@@ -207,35 +215,21 @@ export default class Clock {
     context.stroke();
   }
 
-  _drawCircle(line: LineRadial<[number, number]>, radius: number): void {
-    line([
-      [0, radius],
-      [EIGHTH, radius],
-      [EIGHTH * 2, radius],
-      [EIGHTH * 3, radius],
-      [Math.PI, radius],
-      [Math.PI + EIGHTH, radius],
-      [Math.PI + EIGHTH * 2, radius],
-      [Math.PI + EIGHTH * 3, radius]]);
+  private _drawCircle(context: CanvasRenderingContext2D, radius: number): void {
+    context.moveTo(radius, 0);
+    context.arc(0, 0, radius, 0, 2 * Math.PI);
   }
 
-  _drawClockTicks(line: LineRadial<[number, number]>, context: CanvasRenderingContext2D, radius: number): void {
+  private _drawClockTicks(line: LineRadial<[number, number]>, context: CanvasRenderingContext2D, radius: number): void {
     for (let i = 0; i < 24; i++) {
       const radians = i * TWENTY_FOURTH;
 
       line([
-        [radians, radius * 0.9],
-        [radians, radius * 0.925]]);
+        [radians, radius],
+        [radians, radius * 1.025]]);
 
-      context.fillText(`${i}`, radius * 0.95 * Math.sin(radians), radius * 0.95 * -Math.cos(radians));
+      context.fillText(`${i}`, radius * 1.05 * Math.sin(radians), radius * 1.05 * -Math.cos(radians));
     }
-  }
-
-  _drawCurrentTimeLine(line: LineRadial<[number, number]>, radius: number, innerRadius: number, date: Date): void {
-    const angle = (date.getHours() * TWENTY_FOURTH) + (date.getMinutes() * (TWENTY_FOURTH / 60));
-    line([
-      [angle, radius * 0.36],
-      [angle, radius * 0.9]]);
   }
 
 }
