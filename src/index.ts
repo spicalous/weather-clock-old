@@ -2,7 +2,7 @@ import Clock from "./clock";
 import { mapData } from "./data-mapper";
 
 const TIME_UPDATE_FREQ = 500;
-const URL = "https://9k0pyk23f0.execute-api.eu-west-2.amazonaws.com/default/weatherClockCacheApi?fbclid=IwAR2mNngokPFwXQqMoRJcXPSwhE6SyLmCqVCqlUsSN2R1y08TZc-Xl1rjf0g";
+const URL = "https://ei1andytjj.execute-api.eu-west-2.amazonaws.com/prod";
 
 export default class WeatherClock {
   
