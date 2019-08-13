@@ -12,7 +12,7 @@ function wrapResponse(statusCode, body) {
   return {
     statusCode,
     body: JSON.stringify(body),
-    headers: { "Access-Control-Allow-Origin": "*" }
+    headers: { "Access-Control-Allow-Origin": "https://spicalous.github.io" }
   };
 }
 
