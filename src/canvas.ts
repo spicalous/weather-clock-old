@@ -1,6 +1,7 @@
 import { createElement } from "./util/dom";
 
 function getBackingStoreRatio(): number {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   return window.webkitBackingStorePixelRatio || window.mozBackingStorePixelRatio || window.msBackingStorePixelRatio || window.oBackingStorePixelRatio || window.backingStorePixelRatio 
     || 1;
