@@ -16,7 +16,7 @@ export default class WeatherClock {
   private _updateId: number;
   private _updateTimeId: number;
 
-  constructor(container: HTMLElement) {
+  constructor(container: Element) {
     this._clock = new Clock(container);
     this._boundResize = this._resize.bind(this);
     this._boundUpdate = this._update.bind(this);

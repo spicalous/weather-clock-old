@@ -1,6 +1,9 @@
 const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
+/**
+ * Common for all configs
+ */
 module.exports = {
   output: {
     filename: "[name].js",

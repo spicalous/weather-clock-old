@@ -1,4 +1,6 @@
-import { Time } from "../model/time";
+import DailyData from "./daily-data";
+import HourlyData from "./hourly-data";
+import { Time } from "./time";
 
 /**
  * Container for semi processed weather data

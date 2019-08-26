@@ -3,3 +3,5 @@ interface DailyData {
   sunriseTime?: number;
   sunsetTime?: number;
 }
+
+export default DailyData;

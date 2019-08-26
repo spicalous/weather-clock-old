@@ -1,7 +1,6 @@
 const merge = require("webpack-merge");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const webpackConfig = require("./webpack.common.config.js");
+const webpackCommonViewerConfig = require("./webpack.common.viewer.config.js");
 
 const babelOptions = {
   presets: [
@@ -15,21 +14,15 @@ const babelOptions = {
   ]
 };
 
-module.exports = merge(webpackConfig, {
+module.exports = merge(webpackCommonViewerConfig, {
   mode: "production",
   entry: {
-    viewer: ["./viewer/viewer.scss", "core-js/stable", "regenerator-runtime/runtime", "whatwg-fetch", "./viewer/viewer.ts"]
+    viewer: ["./viewer/viewer.scss", "core-js/stable", "regenerator-runtime/runtime", "whatwg-fetch", "./viewer/viewer.tsx"]
   },
-  plugins: [
-    new HtmlWebpackPlugin({
-      title: "Weather clock viewer"
-    }),
-    new MiniCssExtractPlugin()
-  ],
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         exclude: /node_modules/,
         use: [
           {
@@ -37,7 +30,10 @@ module.exports = merge(webpackConfig, {
             options: babelOptions
           },
           {
-            loader: "ts-loader"
+            loader: "ts-loader",
+            options: {
+              configFile: "tsconfig.viewer.json"
+            }
           }
         ]
       },

@@ -1,3 +1,5 @@
+import DailyData from "./model/daily-data";
+import HourlyData from "./model/hourly-data";
 import Weather from "./model/weather";
 import { isDefined, isObject } from "./util/object";
 import { fahrenheitToCelsius } from "./util/temperature";

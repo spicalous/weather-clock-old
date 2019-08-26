@@ -1,0 +1,11 @@
+{
+  "extends": [
+    ".eslintrc-ts.json",
+    "plugin:react/recommended"
+  ],
+  "settings": {
+    "react": {
+      "version": "16.9.0"
+    }
+  }
+}

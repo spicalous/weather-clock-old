@@ -1,6 +1,7 @@
 import { areaRadial, AreaRadial, lineRadial, LineRadial, curveCatmullRomClosed, curveCatmullRom, curveLinear } from "d3-shape";
 import { PrecipitationIntensity, inchesToPrecipitationIntensity } from "./model/precipitation-intensity";
 import { Time } from "./model/time";
+import HourlyData from "./model/hourly-data";
 import Weather from "./model/weather";
 import { hexToRGBA } from "./util/colour";
 import { createElement } from "./util/dom";
@@ -22,7 +23,7 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 
 export default class Clock {
 
-  private _container: HTMLElement;
+  private _container: Element;
   private _line: LineRadial<[number, number]>;
   private _area: AreaRadial<[number, number]>;
   private _weatherClockContainer: HTMLElement;
@@ -44,7 +45,7 @@ export default class Clock {
   private _time: Date;
   private _weather: Weather;
   
-  constructor(container: HTMLElement) {
+  constructor(container: Element) {
     this._container = container;
     this._line = lineRadial();
     this._area = areaRadial();

@@ -5,3 +5,5 @@ interface HourlyData {
   precipProbability?: number;
   precipType?: string;
 }
+
+export default HourlyData;

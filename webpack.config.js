@@ -1,6 +1,6 @@
 const merge = require("webpack-merge");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const webpackConfig = require("./webpack.common.config.js");
+const webpackCommonConfig = require("./webpack.common.config.js");
 
 const babelOptions = {
   presets: [
@@ -14,7 +14,7 @@ const babelOptions = {
   ]
 };
 
-module.exports = merge(webpackConfig, {
+module.exports = merge(webpackCommonConfig, {
   mode: "production",
   entry: {
     "weather-clock": ["./styles/main.scss", "./src/index.ts"],

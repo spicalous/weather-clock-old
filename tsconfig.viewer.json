@@ -2,9 +2,7 @@
   "compilerOptions": {
     "sourceMap": true,
     "strict": true,
-    "target": "ES5"
-  },
-  "exclude": [
-    "viewer",
-  ]
+    "target": "ES5",
+    "jsx": "react"
+  }
 }
