@@ -18,6 +18,7 @@ const PRECIPITATION_PERCENTAGE_MAP = {
 const TWENTY_FOURTH = Math.PI / 12;
 const CYAN_700 = "#0097A7";
 const AMBER_700 = "#FFA000";
+const GREY_900 = "#212121";
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -223,7 +224,7 @@ export default class Clock {
   }
 
   private _drawBackground(canvas: Canvas, radius: number, innerRadius: number): void {
-    canvas.clear("#000000");
+    canvas.clear(GREY_900);
     const context = canvas.getContext();
     context.translate(this._midPoint, this._midPoint);
 
